@@ -1,4 +1,10 @@
+// app/sitemap.ts
+
 import type { MetadataRoute } from "next"
+
+// 添加下面这一行代码！
+// 这会告诉 Next.js 这个路由是静态的，在构建时就生成 sitemap.xml 文件。
+export const dynamic = 'force-static'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
