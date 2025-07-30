@@ -1,12 +1,24 @@
+# wrangler.toml (修改后的最终版本)
+
 name = "unterschrift"
 compatibility_date = "2024-01-25"
 
-# For Cloudflare Pages deployment
-pages_build_output_dir = ".next"
+# [DELETED] 我们不再需要下面这行，因为它将被 [pages_build_output] 部分取代
+# pages_build_output_dir = ".next"
 
 # Enable Node.js compatibility
 compatibility_flags = ["nodejs_compat"]
 
-# Environment variables (if needed)
+# [build] section to define the build command
+[build]
+# 使用 pnpm 来执行命令，解决包管理器不一致的警告
+command = "pnpm exec @cloudflare/next-on-pages@1"
+
+# [pages_build_output] section to define the correct output directory
+[pages_build_output]
+# 将输出目录指向正确的、经过处理的文件夹，解决文件过大的问题
+dir = ".vercel/output/static"
+
+# Environment variables
 [vars]
 NODE_ENV = "production"
