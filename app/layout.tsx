@@ -1,5 +1,3 @@
-// app/layout.tsx (最终优化版)
-
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
@@ -11,16 +9,14 @@ import { ToastContainer } from "@/components/toast-notification"
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt"
 import { ErrorBoundary } from "@/components/error-boundary"
 
-// 1. 这一部分保持不变，Inter 字体已经通过 next/font 正确加载
-const inter = Inter({ subsets: ["latin"], display: 'swap' }) // 建议添加 display: 'swap'
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  // ... (所有 metadata 保持不变)
   title: "Unterschrift Generator - Kostenlos & Sicher",
   description:
     "Online Ihre Unterschrift erstellen. Einfach zeichnen oder tippen und als PNG herunterladen. ✓ Anonym ✓ Schnell ✓ Ohne Anmeldung.",
   keywords:
-    "Unterschrift Generator, unterschrift erstellen, online unterschrift erstellen, unterschriften, unterschrift erstellen online, unterschrift online erstellen, unterschriften generator",
+    "Unterschrift Generator, unterschrift erstellen, online unterschrift erstellen, unterschriften, unterschrift erstellen online, unterschrift online erstellen, unterschriften generator, handschriftliche unterschrift erstellen, unterschrift erstellen kostenlos, unterschrift ideen generator, unterschrift ideen, unterschrift ersteller, schöne unterschrift, unterschrift designen lassen, schöne unterschrift erstellen, unterschrift schön, signatur erstellen online, unterschrift generator kostenlos, unterschriften erstellen, unterschrift generieren, unterschrift erstellen ideen, signatur online erstellen, handschrift generator, unterschrift erstellen lassen, unterschrift beispiele, unterschriften ideen, online unterschrift erstellen kostenlos, professionelle unterschrift generator, unterschriften ideen generator",
   authors: [{ name: "Unterschrift Generator Team" }],
   creator: "Unterschrift Generator",
   publisher: "Unterschrift Generator",
@@ -58,7 +54,7 @@ export const metadata: Metadata = {
     generator: 'v0.dev'
 }
 
-// structuredData 保持不变
+// Add structured data
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
@@ -94,12 +90,10 @@ export default function RootLayout({
   return (
     <html lang="de">
       <head>
-        {/*
-          🚨🚨🚨 关键修改：下面这一大段 <link> 标签已被删除！🚨🚨🚨
-          它之前是造成性能瓶颈的元凶。
-        */}
-        
-        {/* 所有其他 <head> 内容保持不变 */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Great+Vibes&family=Allura&family=Satisfy&family=Pacifico&family=Kaushan+Script&family=Alex+Brush&family=Amatic+SC:wght@400;700&family=Caveat:wght@400;700&family=Courgette&family=Damion&family=Homemade+Apple&family=Indie+Flower&family=Josefin+Slab:wght@400;700&family=Leckerli+One&family=Marck+Script&family=Nothing+You+Could+Do&family=Patrick+Hand&family=Pinyon+Script&family=Qwigley&family=Rouge+Script&family=Sacramento&family=Tangerine:wght@400;700&display=swap"
+          rel="stylesheet"
+        />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
         <meta
           name="viewport"
@@ -120,7 +114,6 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Unterschrift Generator" />
       </head>
-      {/* 2. body 标签的 className 保持不变，它正确地应用了 Inter 字体 */}
       <body className={inter.className}>
         <ErrorBoundary>
           <MobileOptimizations />
