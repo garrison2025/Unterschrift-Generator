@@ -1,13 +1,13 @@
+// components/signature-generator.tsx (最终修正版 - 完整代码)
+
 "use client"
 
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import clsx from "clsx"
 
-// 1. 从我们创建的 lib/fonts.ts 导入字体配置
 import { signatureFonts, signatureFontVariables } from "@/lib/fonts"
 
-// 2. 其余所有 UI 组件和图标的 import 保持不变
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,8 +18,6 @@ import { Badge } from "@/components/ui/badge"
 import { Download, Trash2, Type, PenTool, Mail, RotateCcw, Copy } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
-
-// 3. 旧的 SIGNATURE_FONTS 数组已被彻底删除
 
 const PRESET_COLORS = [
   { name: "Schwarz", value: "#000000" },
@@ -37,22 +35,19 @@ export function SignatureGenerator() {
   const [name, setName] = useState("")
   const [fontSize, setFontSize] = useState([48])
   const [color, setColor] = useState("#000000")
-  // 4. State 现在存储字体的名称字符串，而不是索引
   const [selectedFontName, setSelectedFontName] = useState("Dancing Script")
   const [isItalic, setIsItalic] = useState(false)
   const [isUnderlined, setIsUnderlined] = useState(false)
   const [isBold, setIsBold] = useState(false)
   const [rotation, setRotation] = useState([0])
   const [letterSpacing, setLetterSpacing] = useState([0])
-  const [selectedCategory, setSelectedCategory] = useState("all") // 分类逻辑保留
+  const [selectedCategory, setSelectedCategory] = useState("all")
 
-  // Drawing canvas state
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [isDrawing, setIsDrawing] = useState(false)
   const [strokeWidth, setStrokeWidth] = useState([3])
   const [canvasHistory, setCanvasHistory] = useState<ImageData[]>([])
 
-  // Email signature state
   const [emailData, setEmailData] = useState({
     name: "",
     position: "",
@@ -62,7 +57,7 @@ export function SignatureGenerator() {
     email: "",
   })
 
-  // Canvas 相关的函数 (saveCanvasState, undoCanvas, etc.) 保持不变
+  // Canvas 相关的函数保持不变
   const saveCanvasState = () => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -95,54 +90,55 @@ export function SignatureGenerator() {
     saveCanvasState()
   }, [])
 
+  // 其他辅助函数保持不变
   const getEventPos = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current
-    if (!canvas) return { x: 0, y: 0 }
-    const rect = canvas.getBoundingClientRect()
-    const scaleX = canvas.width / rect.width
-    const scaleY = canvas.height / rect.height
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
     if ("touches" in e) {
-      const touch = e.touches[0] || e.changedTouches[0]
-      return {
-        x: (touch.clientX - rect.left) * scaleX,
-        y: (touch.clientY - rect.top) * scaleY,
-      }
+        const touch = e.touches[0] || e.changedTouches[0];
+        return {
+            x: (touch.clientX - rect.left) * scaleX,
+            y: (touch.clientY - rect.top) * scaleY,
+        };
     } else {
-      return {
-        x: (e.clientX - rect.left) * scaleX,
-        y: (e.clientY - rect.top) * scaleY,
-      }
+        return {
+            x: (e.clientX - rect.left) * scaleX,
+            y: (e.clientY - rect.top) * scaleY,
+        };
     }
-  }
+  };
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    saveCanvasState()
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const pos = getEventPos(e)
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
-    ctx.beginPath()
-    ctx.moveTo(pos.x, pos.y)
-    setIsDrawing(true)
-  }
+    saveCanvasState();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const pos = getEventPos(e);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+    setIsDrawing(true);
+  };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const pos = getEventPos(e)
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
-    ctx.lineWidth = strokeWidth[0]
-    ctx.strokeStyle = color
-    ctx.lineTo(pos.x, pos.y)
-    ctx.stroke()
-  }
+    if (!isDrawing) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const pos = getEventPos(e);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.lineWidth = strokeWidth[0];
+    ctx.strokeStyle = color;
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+  };
 
   const stopDrawing = () => {
-    setIsDrawing(false)
-  }
+    setIsDrawing(false);
+  };
 
   const clearCanvas = () => {
     const canvas = canvasRef.current
@@ -154,16 +150,11 @@ export function SignatureGenerator() {
     setCanvasHistory([])
   }
 
-  // 5. 修改下载函数以使用新的字体系统
+  // ==================== [最终修正] ====================
+  // downloadSignatureFont 函数的修正版本
   const downloadSignatureFont = (fontName: string) => {
     if (!name.trim()) {
       alert("Bitte geben Sie Ihren Namen ein, bevor Sie die Unterschrift herunterladen.")
-      return
-    }
-
-    const selectedFontObject = signatureFonts[fontName as keyof typeof signatureFonts]
-    if (!selectedFontObject) {
-      console.error("Font not found:", fontName)
       return
     }
 
@@ -181,9 +172,11 @@ export function SignatureGenerator() {
     let fontStyle = ""
     if (isBold) fontStyle += "bold "
     if (isItalic) fontStyle += "italic "
+    
+    // 关键修正：这里我们使用原始的字体名称字符串，并用单引号包裹，
+    // 而不是使用 CSS 变量。
+    ctx.font = `${fontStyle}${fontSize[0]}px '${fontName}'`
 
-    // 使用 CSS 变量来应用字体
-    ctx.font = `${fontStyle}${fontSize[0]}px var(${selectedFontObject.variable})`
     ctx.fillStyle = color
     ctx.textAlign = "center"
     ctx.textBaseline = "middle"
@@ -236,10 +229,10 @@ export function SignatureGenerator() {
       URL.revokeObjectURL(url)
     }, "image/png")
   }
+  // ======================================================
 
-  // 其他下载函数保持不变
+  // 其他函数保持不变
   const downloadCanvasSignature = () => {
-    // ... (此函数逻辑不变)
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
@@ -264,12 +257,34 @@ export function SignatureGenerator() {
   }
 
   const downloadEmailSignature = () => {
-    // ... (此函数逻辑不变)
     if (!emailData.name.trim()) {
       alert("Bitte geben Sie mindestens Ihren Namen ein.")
       return
     }
-    const htmlContent = `...` // HTML content string
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>E-Mail Signatur</title>
+</head>
+<body>
+    <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.4; color: #333;">
+        <div style="border-left: 4px solid #3B82F6; padding-left: 15px;">
+            <div style="font-weight: bold; font-size: 16px; margin-bottom: 2px;">${emailData.name}</div>
+            ${emailData.position ? `<div style="color: #666; margin-bottom: 2px;">${emailData.position}</div>` : ""}
+            ${emailData.company ? `<div style="font-weight: 500; margin-bottom: 8px;">${emailData.company}</div>` : ""}
+            <div style="font-size: 12px; color: #666;">
+                ${emailData.phone ? `<div style="margin-bottom: 2px;">📞 ${emailData.phone}</div>` : ""}
+                ${emailData.email ? `<div style="margin-bottom: 2px;">✉️ ${emailData.email}</div>` : ""}
+                ${emailData.website ? `<div>🌐 <a href="http://${emailData.website}" style="color: #3B82F6; text-decoration: none;">${emailData.website}</a></div>` : ""}
+            </div>
+        </div>
+    </div>
+</body>
+</html>`
+
     const blob = new Blob([htmlContent], { type: "text/html" })
     const url = URL.createObjectURL(blob)
     const link = document.createElement("a")
@@ -279,7 +294,9 @@ export function SignatureGenerator() {
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
-    const textContent = `${emailData.name}...` // Text content string
+
+    const textContent = `${emailData.name}${emailData.position ? `\n${emailData.position}` : ""}${emailData.company ? `\n${emailData.company}` : ""}${emailData.phone ? `\n📞 ${emailData.phone}` : ""}${emailData.email ? `\n✉️ ${emailData.email}` : ""}${emailData.website ? `\n🌐 ${emailData.website}` : ""}`
+
     navigator.clipboard
       .writeText(textContent)
       .then(() => {
@@ -290,7 +307,6 @@ export function SignatureGenerator() {
       })
   }
   
-  // 主下载按钮的逻辑更新
   const downloadSignature = () => {
     if (activeTab === "type") {
       downloadSignatureFont(selectedFontName)
@@ -302,7 +318,6 @@ export function SignatureGenerator() {
   }
 
   const copySignatureToClipboard = async () => {
-    // ... (此函数逻辑不变)
     if (activeTab === "type" && name.trim()) {
       try {
         await navigator.clipboard.writeText(name)
@@ -313,43 +328,43 @@ export function SignatureGenerator() {
     }
   }
 
-  // 触摸事件处理函数保持不变
   const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    e.preventDefault()
-    saveCanvasState()
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const pos = getEventPos(e)
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
-    ctx.beginPath()
-    ctx.moveTo(pos.x, pos.y)
-    setIsDrawing(true)
-  }
+    e.preventDefault();
+    saveCanvasState();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const pos = getEventPos(e);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+    setIsDrawing(true);
+  };
 
   const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    e.preventDefault()
-    if (!isDrawing) return
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const pos = getEventPos(e)
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
-    ctx.lineWidth = strokeWidth[0]
-    ctx.strokeStyle = color
-    ctx.lineTo(pos.x, pos.y)
-    ctx.stroke()
-  }
+    e.preventDefault();
+    if (!isDrawing) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const pos = getEventPos(e);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.lineWidth = strokeWidth[0];
+    ctx.strokeStyle = color;
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+  };
 
   const handleTouchEnd = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    e.preventDefault()
-    setIsDrawing(false)
-  }
+    e.preventDefault();
+    setIsDrawing(false);
+  };
 
+  // JSX/渲染部分的代码保持不变
   return (
-    // 6. 在组件根元素上应用所有字体的 CSS 变量
     <section id="signature-generator" className={clsx("py-12 sm:py-20 bg-gray-50", signatureFontVariables)}>
       <div className="container mx-auto px-4">
+        {/* ... (组件标题和描述部分不变) ... */}
         <div className="text-center mb-8 sm:mb-12">
           <Badge className="mb-4 bg-blue-100 text-blue-800 hover:bg-blue-200">
             🚀 Professioneller Unterschrift Generator
@@ -361,6 +376,7 @@ export function SignatureGenerator() {
         </div>
 
         <Card className="max-w-5xl mx-auto">
+          {/* ... (Tabs 切换部分不变) ... */}
           <CardHeader className="p-4 sm:p-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-3 h-auto">
@@ -383,12 +399,10 @@ export function SignatureGenerator() {
           <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
             <Tabs value={activeTab} className="w-full">
               <TabsContent value="type" className="space-y-6">
+                {/* ... (所有 Input, Slider, Color Picker 等的 JSX 保持不变) ... */}
                 <div className="space-y-4">
-                  {/* ... (所有 Input, Slider, Color Picker 等的 JSX 保持不变) ... */}
-                  <div>
                     <Label htmlFor="name">Ihr Name</Label>
                     <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Max Mustermann" className="text-lg" />
-                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
                       <Label>Größe: {fontSize[0]}px</Label>
@@ -430,25 +444,17 @@ export function SignatureGenerator() {
                     </div>
                   </div>
                 </div>
-
                 <Separator />
                 
-                {/* 7. 字体预览和选择逻辑使用新的字体系统 */}
+                {/* 字体预览和选择逻辑不变 */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                   {Object.entries(signatureFonts).map(([fontName, fontObject]) => (
                     <div
                       key={fontName}
-                      className={clsx(
-                        "p-3 sm:p-4 border-2 rounded-lg transition-all",
-                        selectedFontName === fontName
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-gray-200 hover:border-gray-300"
-                      )}
+                      className={clsx("p-3 sm:p-4 border-2 rounded-lg transition-all", selectedFontName === fontName ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300")}
                     >
                       <div className="text-center">
-                        <p className="text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3 truncate">
-                          {fontName}
-                        </p>
+                        <p className="text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3 truncate">{fontName}</p>
                         <div
                           className="cursor-pointer mb-3 sm:mb-4 min-h-[30px] sm:min-h-[40px] flex items-center justify-center"
                           onClick={() => setSelectedFontName(fontName)}
@@ -466,22 +472,8 @@ export function SignatureGenerator() {
                           <span className="truncate max-w-full">{name || "Max Mustermann"}</span>
                         </div>
                         <div className="flex gap-1 sm:gap-2">
-                          <Button
-                            size="sm"
-                            variant={selectedFontName === fontName ? "default" : "outline"}
-                            onClick={() => setSelectedFontName(fontName)}
-                            className="flex-1 text-xs px-2 py-1 h-8"
-                          >
-                            Wählen
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => downloadSignatureFont(fontName)}
-                            className="px-2 py-1 h-8 w-8"
-                            disabled={!name.trim()}
-                            title="Herunterladen"
-                          >
+                          <Button size="sm" variant={selectedFontName === fontName ? "default" : "outline"} onClick={() => setSelectedFontName(fontName)} className="flex-1 text-xs px-2 py-1 h-8">Wählen</Button>
+                          <Button size="sm" variant="secondary" onClick={() => downloadSignatureFont(fontName)} className="px-2 py-1 h-8 w-8" disabled={!name.trim()} title="Herunterladen">
                             <Download className="w-3 h-3" />
                           </Button>
                         </div>
@@ -491,8 +483,8 @@ export function SignatureGenerator() {
                 </div>
               </TabsContent>
 
+              {/* ... (Draw 和 Email Tab 的 JSX 保持不变) ... */}
               <TabsContent value="draw" className="space-y-6">
-                {/* ... (Draw Tab 的 JSX 保持不变) ... */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <Label>Strichstärke: {strokeWidth[0]}px</Label>
@@ -529,7 +521,6 @@ export function SignatureGenerator() {
               </TabsContent>
 
               <TabsContent value="email" className="space-y-6">
-                {/* ... (Email Tab 的 JSX 保持不变) ... */}
                 <div className="grid grid-cols-1 gap-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
