@@ -1,0 +1,12 @@
+name = "unterschrift"
+compatibility_date = "2024-01-25"
+
+# For Cloudflare Pages deployment
+pages_build_output_dir = ".next"
+
+# Enable Node.js compatibility
+compatibility_flags = ["nodejs_compat"]
+
+# Environment variables (if needed)
+[vars]
+NODE_ENV = "production"
