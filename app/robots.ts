@@ -13,6 +13,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/private/", "/admin/"],
     },
-    sitemap: "https://unterschrift-generator.de/sitemap.xml",
+    sitemap: "https://unterschriftgenerator.pro/sitemap.xml",
   }
 }
