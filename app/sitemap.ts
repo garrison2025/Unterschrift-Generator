@@ -9,25 +9,25 @@ export const dynamic = 'force-static'
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: "https://unterschrift-generator.de",
+      url: "https://unterschriftgenerator.pro/",
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,
     },
     {
-      url: "https://unterschrift-generator.de/ratgeber",
+      url: "https://unterschriftgenerator.pro/ratgeber",
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,
     },
     {
-      url: "https://unterschrift-generator.de/impressum",
+      url: "https://unterschriftgenerator.pro/impressum",
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.3,
     },
     {
-      url: "https://unterschrift-generator.de/datenschutz",
+      url: "https://unterschriftgenerator.pro/datenschutz",
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.3,
